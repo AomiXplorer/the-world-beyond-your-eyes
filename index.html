@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="theme-color" content="#12100f" />
+<meta name="description" content="The World Beyond Your Eyes - sebuah visual novel anime tentang seorang gadis tunanetra, hujan, dan janji yang belum ditepati." />
+<title>The World Beyond Your Eyes</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Kaku+Gothic+New:wght@300;400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<!-- ============================ BOOT ============================ -->
+<div id="boot" class="screen boot">
+  <div class="boot-inner">
+    <p class="boot-kicker">Visual Novel</p>
+    <h1 class="boot-title">The World<br /><span>Beyond Your Eyes</span></h1>
+    <div class="boot-bar"><i id="boot-bar-fill"></i></div>
+    <p class="boot-status" id="boot-status">Menyiapkan hujan...</p>
+  </div>
+</div>
+
+<!-- ============================ TITLE ============================ -->
+<div id="title-screen" class="screen title-screen is-hidden">
+  <div class="title-art" id="title-art"></div>
+  <div class="title-scrim"></div>
+
+  <div class="title-inner">
+    <p class="title-kicker">Sebuah kisah tentang apa yang tidak bisa dilihat</p>
+    <h1 class="title-logo">
+      <span class="l1">The World</span>
+      <span class="l2">Beyond Your Eyes</span>
+    </h1>
+    <p class="title-sub">Dunia di Balik Matamu</p>
+
+    <nav class="title-menu" id="title-menu" aria-label="Menu utama">
+      <button class="menu-item" data-action="new"><span class="mi-label">Mulai Baru</span><span class="mi-en">New Game</span></button>
+      <button class="menu-item" data-action="continue" id="menu-continue"><span class="mi-label">Lanjutkan</span><span class="mi-en">Continue</span></button>
+      <button class="menu-item" data-action="load"><span class="mi-label">Muat Permainan</span><span class="mi-en">Load Game</span></button>
+      <button class="menu-item" data-action="chapters"><span class="mi-label">Pilih Bab</span><span class="mi-en">Chapter Select</span></button>
+      <button class="menu-item" data-action="gallery"><span class="mi-label">Galeri</span><span class="mi-en">Gallery</span></button>
+      <button class="menu-item" data-action="settings"><span class="mi-label">Pengaturan</span><span class="mi-en">Settings</span></button>
+      <button class="menu-item" data-action="credits"><span class="mi-label">Kredit</span><span class="mi-en">Credits</span></button>
+    </nav>
+  </div>
+
+  <div class="title-footer">
+    <span id="title-progress">Belum ada data permainan</span>
+    <span class="dot">·</span>
+    <span>v1.0.0</span>
+  </div>
+</div>
+
+<!-- ============================ STAGE ============================ -->
+<div id="stage" class="screen stage is-hidden">
+  <div class="bg-layer">
+    <div class="bg-slot" id="bg-a"></div>
+    <div class="bg-slot" id="bg-b"></div>
+    <div class="bg-grade"></div>
+    <div class="bg-rain" id="bg-rain"></div>
+    <div class="bg-vignette"></div>
+  </div>
+
+  <div class="sprite-layer" id="sprite-layer">
+    <div class="sprite-slot" data-pos="left"></div>
+    <div class="sprite-slot" data-pos="center"></div>
+    <div class="sprite-slot" data-pos="right"></div>
+  </div>
+
+  <div class="flash" id="flash"></div>
+  <div class="veil" id="veil"></div>
+
+  <header class="hud" id="hud">
+    <div class="hud-left">
+      <span class="hud-chapter" id="hud-chapter">Bab 01</span>
+      <span class="hud-title" id="hud-title"></span>
+    </div>
+    <div class="hud-right">
+      <button class="hud-btn" data-hud="auto" title="Auto play (A)">Auto</button>
+      <button class="hud-btn" data-hud="skip" title="Lewati teks yang sudah dibaca (S)">Skip</button>
+      <button class="hud-btn" data-hud="log" title="Riwayat dialog (L)">Log</button>
+      <button class="hud-btn" data-hud="save" title="Simpan">Simpan</button>
+      <button class="hud-btn" data-hud="load" title="Muat">Muat</button>
+      <button class="hud-btn" data-hud="settings" title="Pengaturan">⚙</button>
+      <button class="hud-btn" data-hud="menu" title="Menu utama">☰</button>
+    </div>
+  </header>
+
+  <div class="dialog-wrap" id="dialog-wrap">
+    <div class="dialog-box" id="dialog-box">
+      <div class="name-tag" id="name-tag"><span id="name-text"></span></div>
+      <div class="dialog-text" id="dialog-text" aria-live="polite"></div>
+      <div class="next-mark" id="next-mark"><span></span></div>
+    </div>
+  </div>
+
+  <div class="choices" id="choices" role="group" aria-label="Pilihan dialog"></div>
+
+  <div class="chapter-card is-hidden" id="chapter-card">
+    <div class="cc-rule"></div>
+    <p class="cc-no" id="cc-no">Bab 01</p>
+    <h2 class="cc-title" id="cc-title"></h2>
+    <p class="cc-sub" id="cc-sub"></p>
+    <div class="cc-rule"></div>
+  </div>
+
+  <div class="ending-card is-hidden" id="ending-card">
+    <p class="ec-kicker" id="ec-kicker">Ending</p>
+    <h2 class="ec-title" id="ec-title"></h2>
+    <p class="ec-sub" id="ec-sub"></p>
+    <p class="ec-stats" id="ec-stats"></p>
+    <div class="ec-actions">
+      <button class="btn" id="ec-gallery">Buka Galeri</button>
+      <button class="btn btn-ghost" id="ec-title-btn">Kembali ke Menu</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================ OVERLAYS ============================ -->
+<div class="overlay is-hidden" id="ov-settings">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Pengaturan</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+
+    <div class="panel-body">
+      <section class="set-group">
+        <h3>Audio</h3>
+        <label class="slider-row">
+          <span>Musik</span>
+          <input type="range" id="vol-bgm" min="0" max="100" value="70" />
+          <output id="vol-bgm-out">70</output>
+        </label>
+        <label class="slider-row">
+          <span>Efek Suara</span>
+          <input type="range" id="vol-sfx" min="0" max="100" value="80" />
+          <output id="vol-sfx-out">80</output>
+        </label>
+        <div class="toggle-row">
+          <button class="toggle" id="toggle-mute" aria-pressed="false">Bisukan Semua</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>Tampilan</h3>
+        <label class="slider-row">
+          <span>Kecepatan Teks</span>
+          <input type="range" id="txt-speed" min="0" max="100" value="55" />
+          <output id="txt-speed-out">Normal</output>
+        </label>
+        <label class="slider-row">
+          <span>Jeda Auto</span>
+          <input type="range" id="auto-delay" min="0" max="100" value="50" />
+          <output id="auto-delay-out">Sedang</output>
+        </label>
+        <div class="toggle-row">
+          <button class="toggle" id="toggle-reduce" aria-pressed="false">Kurangi Animasi</button>
+          <button class="toggle" id="toggle-fullscreen">Layar Penuh</button>
+        </div>
+      </section>
+
+      <section class="set-group">
+        <h3>Data</h3>
+        <p class="hint" id="storage-hint">Progres disimpan otomatis di perangkat ini.</p>
+        <div class="toggle-row">
+          <button class="toggle danger" id="clear-seen">Hapus Riwayat "Sudah Dibaca"</button>
+          <button class="toggle danger" id="clear-all">Hapus Semua Data</button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
+
+<div class="overlay is-hidden" id="ov-saves">
+  <div class="panel">
+    <div class="panel-head">
+      <h2 id="saves-title">Simpan</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+    <div class="panel-body">
+      <div class="slot-grid" id="slot-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay is-hidden" id="ov-history">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Riwayat Dialog</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+    <div class="panel-body history-body" id="history-body"></div>
+  </div>
+</div>
+
+<div class="overlay is-hidden" id="ov-gallery">
+  <div class="panel panel-wide">
+    <div class="panel-head">
+      <h2>Galeri</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+    <div class="panel-body">
+      <div class="gallery-grid" id="gallery-grid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay is-hidden" id="ov-chapters">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Pilih Bab</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+    <div class="panel-body">
+      <div class="chapter-list" id="chapter-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay is-hidden" id="ov-credits">
+  <div class="panel">
+    <div class="panel-head">
+      <h2>Kredit</h2>
+      <button class="panel-close" data-close>×</button>
+    </div>
+    <div class="panel-body credits-body" id="credits-body"></div>
+  </div>
+</div>
+
+<div class="lightbox is-hidden" id="lightbox">
+  <button class="lb-close" id="lb-close">×</button>
+  <figure>
+    <img id="lb-img" alt="" />
+    <figcaption id="lb-cap"></figcaption>
+  </figure>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- ============================ SCRIPTS ============================ -->
+<script src="js/config.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/save.js"></script>
+<script src="js/story/ch01.js"></script>
+<script src="js/story/ch02.js"></script>
+<script src="js/story/ch03.js"></script>
+<script src="js/story/ch04.js"></script>
+<script src="js/story/ch05.js"></script>
+<script src="js/story/ch06.js"></script>
+<script src="js/story/ch07.js"></script>
+<script src="js/story/ch08.js"></script>
+<script src="js/story/endings.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
