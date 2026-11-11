@@ -34,12 +34,11 @@
     ['cafe_rain', 'cafe_evening', 'street_spring', 'classroom'].forEach(function (k) {
       if (VN.BG[k]) list.push(url(VN.BG[k]));
     });
+    /* Only the neutral face of each character is core. Every other expression is
+       preloaded per chapter by the scene, so the first paint is not held up by
+       thirty half-body illustrations. */
     Object.keys(VN.CHAR).forEach(function (id) {
-      var seen = {};
-      Object.keys(VN.CHAR[id]).forEach(function (e) {
-        var p = VN.CHAR[id][e];
-        if (!seen[p]) { seen[p] = 1; list.push(url(p)); }
-      });
+      if (VN.CHAR[id].neutral) list.push(url(VN.CHAR[id].neutral));
     });
     return list;
   }

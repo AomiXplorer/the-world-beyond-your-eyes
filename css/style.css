@@ -1,9 +1,10 @@
 /* ==========================================================================
-   The World Beyond Your Eyes - v2.1.1
+   The World Beyond Your Eyes - v2.2.0
    Art direction: rain-lit amber. Near-black ink chrome, warm paper text,
    one gold accent, hairline rules, illustrations carry all the colour.
-   Layout: a real VN stage - full-bleed plate, bottom-anchored standing
-   sprites, one low dialogue slab. Landscape first on every device.
+   Layout: a real VN stage - full-bleed plate, half-body waist-up character
+   sprites anchored on the dialogue slab, one low dialogue box. Landscape
+   first on every device.
    ========================================================================== */
 
 :root {
@@ -19,6 +20,11 @@
   --line-2:     rgba(243, 234, 217, .28);
   --stage-h:    var(--app-h, 100dvh);
   --stage-w:    var(--app-w, 100dvw);
+  /* Half-body sprite frame: height as a share of the stage, and the offset of
+     the waist line from the bottom edge. Both are overridden per breakpoint and
+     when two characters share the stage. */
+  --sprite-h:   .82;
+  --sprite-b:   .05;
   --pad-x:      clamp(16px, 3.2vw, 48px);
   --serif:      'Shippori Mincho', 'Times New Roman', serif;
   --sans:       'Zen Kaku Gothic New', system-ui, -apple-system, 'Segoe UI', sans-serif;
@@ -104,7 +110,7 @@ img { max-width: 100%; }
     linear-gradient(0deg, rgba(6,5,9,.92), rgba(6,5,9,0) 46%);
 }
 .title-figure {
-  position: absolute; right: 4%; bottom: 0; height: 90%;
+  position: absolute; right: 4%; bottom: 0; height: 84%;
   pointer-events: none;
   animation: figureIn 1.6s var(--ease) both .2s;
 }
@@ -206,9 +212,10 @@ img { max-width: 100%; }
 /* ------------------------------ character sprites ------------------------------ */
 .sprite-root { position: absolute; inset: 0; }
 .sprite-slot {
-  position: absolute; bottom: -1.5%;
+  position: absolute;
+  bottom: calc(var(--stage-h) * var(--sprite-b));
   left: 50%;
-  height: calc(var(--stage-h) * .93);
+  height: calc(var(--stage-h) * var(--sprite-h));
   width: 0;
   opacity: 0;
   transform: translate(-50%, 22px);
@@ -216,24 +223,34 @@ img { max-width: 100%; }
   will-change: transform, opacity;
   pointer-events: none;
 }
-.sprite-slot[data-pos="left"]   { left: 24%; }
+/* Half-body sprites are wide, so the outer marks sit closer to the edges than a
+   standing full-body figure would. */
+.sprite-slot[data-pos="left"]   { left: 23%; }
 .sprite-slot[data-pos="center"] { left: 50%; }
-.sprite-slot[data-pos="right"]  { left: 76%; }
+.sprite-slot[data-pos="right"]  { left: 77%; }
+
+/* Two characters on stage at once: step back so the pair still reads. */
+.sprite-root.is-duo { --sprite-h: .70; }
+.sprite-root.is-duo .sprite-slot[data-pos="left"]  { left: 27%; }
+.sprite-root.is-duo .sprite-slot[data-pos="right"] { left: 73%; }
 .sprite-slot.is-in { opacity: 1; transform: translate(-50%, 0); animation: idleFloat 7s ease-in-out infinite alternate 1s; }
 .sprite-slot.is-leaving { opacity: 0; transform: translate(-50%, 14px); }
 .sprite-slot img {
+  /* The artwork is already a waist-up composition. It is scaled by height and
+     anchored on its bottom edge, never cropped, never covered. */
   position: absolute; bottom: 0; left: 0;
   height: 100%; width: auto; max-width: none;
+  object-fit: contain; object-position: bottom center;
   transform: translateX(-50%);
   display: block;
-  filter: drop-shadow(0 22px 34px rgba(0,0,0,.5));
+  filter: drop-shadow(0 18px 30px rgba(0,0,0,.45));
   transition: transform .5s var(--ease);
 }
 .sprite-slot img.is-swapping { animation: exprPop .22s ease; }
 .sprite-emote {
   position: absolute;
-  left: calc(var(--stage-h) * .085);
-  top: calc(var(--stage-h) * .045);
+  left: calc(var(--stage-h) * .145);
+  top: calc(var(--stage-h) * .055);
   width: calc(var(--stage-h) * .062);
   height: calc(var(--stage-h) * .062);
   color: #f2e4c8;
@@ -249,13 +266,18 @@ img { max-width: 100%; }
 .sprite-emote.is-on { opacity: 1; transform: scale(1) rotate(0deg); animation: emotePulse 2.6s ease-in-out infinite; }
 .sprite-slot.is-dim { filter: brightness(.62) saturate(.86) contrast(1.02); }
 .sprite-slot.is-talk img { transform: translateX(-50%) translateY(-3px); }
-/* The slot itself is zero-width (the sprite is centred on its left edge), so the
-   ground shadow is sized off the stage instead of a percentage of the parent. */
+/* A half-body figure has no feet, so there is no ground shadow. What the slot
+   keeps is a soft backdrop pool behind the character: it holds the figure away
+   from a busy plate without painting an ellipse under a waist. */
 .sprite-shadow {
-  position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: calc(var(--stage-h) * .30); height: calc(var(--stage-h) * .028);
-  background: radial-gradient(ellipse at center, rgba(0,0,0,.55), rgba(0,0,0,0) 70%);
-  filter: blur(9px);
+  position: absolute; bottom: 6%; left: 50%; transform: translateX(-50%);
+  width: calc(var(--stage-h) * var(--sprite-h) * .62);
+  height: calc(var(--stage-h) * var(--sprite-h) * .78);
+  background: radial-gradient(ellipse 50% 46% at 50% 46%,
+              rgba(6,5,10,.50), rgba(6,5,10,.22) 58%, rgba(6,5,10,0) 76%);
+  filter: blur(16px);
+  z-index: -1;
+  pointer-events: none;
 }
 
 /* -------------------------------- effects -------------------------------- */
@@ -665,7 +687,8 @@ html.force-landscape .rotate-overlay { display: none !important; }
 
 /* short landscape phones: tighten everything, keep the stage wide */
 @media (max-height: 480px) and (orientation: landscape) {
-  .sprite-slot { height: calc(var(--stage-h) * .96); }
+  :root { --sprite-h: .92; --sprite-b: 0; }
+  .sprite-root.is-duo { --sprite-h: .78; }
   .hud { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); }
   .hud-btn { padding: 5px 7px; }
   .hud-btn span { display: none; }
@@ -694,7 +717,7 @@ html.force-landscape .rotate-overlay { display: none !important; }
 
 /* tablets / small laptops */
 @media (max-width: 900px) {
-  .title-figure { right: -4%; height: 78%; opacity: .55; }
+  .title-figure { right: -8%; height: 72%; opacity: .55; }
   .title-inner { max-width: 62vw; }
 }
 
@@ -703,7 +726,7 @@ html.force-landscape .rotate-overlay { display: none !important; }
   .hud-btn span { display: none; }
   .hud-title { display: none; }
   .hud-rule { display: none; }
-  .title-figure { opacity: .4; height: 62%; }
+  .title-figure { opacity: .4; height: 58%; }
   .slot-grid { grid-template-columns: 1fr; }
   .credits-body dl { grid-template-columns: 1fr; gap: 4px 0; }
   .credits-body dd { margin-bottom: 8px; }
@@ -712,7 +735,7 @@ html.force-landscape .rotate-overlay { display: none !important; }
 /* portrait phones: the stage is not playable, but menus still work */
 @media (orientation: portrait) {
   .title-inner { top: auto; bottom: 16%; transform: none; max-width: 100%; }
-  .title-figure { height: 52%; right: -10%; opacity: .35; }
+  .title-figure { height: 46%; right: -10%; opacity: .35; }
   .title-logo { font-size: clamp(26px, 8.4vw, 40px); }
   .title-menu { flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
   .menu-item { padding: 6px 12px 6px 0; }

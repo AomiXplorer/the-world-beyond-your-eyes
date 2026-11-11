@@ -1,6 +1,6 @@
 /* ============================================================
    The World Beyond Your Eyes - configuration & asset manifest
-   v2.1.1 - anime VN art direction, character sprite system
+   v2.2.0 - half-body character sprites, youthful 17-year-old cast
    ============================================================ */
 window.VN = window.VN || {};
 
@@ -10,7 +10,7 @@ window.VN = window.VN || {};
   VN.ASSET = 'assets/';
   VN.TITLE = 'The World Beyond Your Eyes';
   VN.TITLE_ID = 'Dunia di Balik Matamu';
-  VN.VERSION = '2.1.1';
+  VN.VERSION = '2.2.0';
   VN.SAVE_VERSION = 3;
 
   /* ------------------------------ backgrounds ------------------------------ */
@@ -36,67 +36,88 @@ window.VN = window.VN || {};
   VN.RAIN_BG = { street_spring: true };
 
   /* ------------------------------ characters ------------------------------ */
-  /* Standing sprites: 1100x1650 canvas, transparent, bottom anchored, head to
-     feet. One transparent PNG per expression, generated for this project. */
+  /* Half-body sprites. Every face is generated as a waist-up illustration on a
+     1200x1500 transparent canvas and normalised so the head sits at the top
+     edge and the waist at the bottom edge. Nothing is a full-body render cut
+     down by CSS: the composition itself stops at the waist. */
+  VN.SPRITE = {
+    canvas: [1200, 1500],
+    anchor: 'waist',
+    height: 0.82,       /* share of stage height, wide screens */
+    heightSmall: 0.92   /* short landscape phones */
+  };
+
   VN.CHARACTERS = {
     shiori: { name: 'Shiori Amane',   color: '#e0b463', sprite: true },
     mio:    { name: 'Mio Kanzaki',    color: '#c86b62', sprite: true },
     ren:    { name: 'Ren Takahashi',  color: '#8fa7bb', sprite: false }
   };
 
+  /* The ten faces rendered for each heroine. Same head size, same shoulders,
+     same crop in every one, so an expression swap never moves the character. */
+  VN.FACES = ['neutral', 'smile', 'tender', 'laugh', 'shy',
+              'blush', 'sad', 'cry', 'surprised', 'angry'];
+
   VN.CHAR = {
     shiori: {
       neutral:   'characters/shiori/neutral.webp',
       smile:     'characters/shiori/smile.webp',
-      laugh:     'characters/shiori/laugh.webp',
-      sad:       'characters/shiori/sad.webp',
       tender:    'characters/shiori/tender.webp',
-      surprised: 'characters/shiori/surprised.webp',
+      laugh:     'characters/shiori/laugh.webp',
+      shy:       'characters/shiori/shy.webp',
       blush:     'characters/shiori/blush.webp',
-      angry:     'characters/shiori/angry.webp',
-      cry:       'characters/shiori/cry.webp'
+      sad:       'characters/shiori/sad.webp',
+      cry:       'characters/shiori/cry.webp',
+      surprised: 'characters/shiori/surprised.webp',
+      angry:     'characters/shiori/angry.webp'
     },
     mio: {
       neutral:   'characters/mio/neutral.webp',
+      smile:     'characters/mio/smile.webp',
       smirk:     'characters/mio/smirk.webp',
+      tender:    'characters/mio/tender.webp',
+      laugh:     'characters/mio/laugh.webp',
+      shy:       'characters/mio/shy.webp',
+      blush:     'characters/mio/blush.webp',
+      sad:       'characters/mio/sad.webp',
+      cry:       'characters/mio/cry.webp',
       surprised: 'characters/mio/surprised.webp',
-      sad:       'characters/mio/sad.webp'
-      /* laugh and angry have no render yet: the alias table below borrows the
-         closest face and the stage adds the matching anime emote glyph. */
+      angry:     'characters/mio/angry.webp'
     },
     ren: {
       neutral:   'characters/ren/neutral.webp'
     }
   };
 
-  /* Extra expression words a script may use, mapped onto a shipped asset. */
+  /* Extra expression words a script may use, mapped onto a shipped face. */
   VN.EXPR_ALIAS = {
     shiori: {
-      happy: 'smile', gentle: 'tender', shy: 'blush', embarrassed: 'blush',
-      crying: 'cry', soft: 'tender', worried: 'sad', calm: 'neutral',
-      excited: 'laugh', smirk: 'smile', tease: 'smile'
+      happy: 'laugh', gentle: 'tender', soft: 'tender', calm: 'neutral',
+      shy: 'shy', embarrassed: 'blush', bashful: 'shy', flustered: 'blush',
+      crying: 'cry', tears: 'cry', worried: 'sad', nervous: 'shy',
+      excited: 'laugh', tease: 'smile', smirk: 'smile', annoyed: 'angry',
+      proud: 'smile', moved: 'cry'
     },
     mio: {
-      happy: 'smirk', gentle: 'neutral', shy: 'surprised', embarrassed: 'surprised',
-      cry: 'sad', crying: 'sad', soft: 'neutral', worried: 'sad',
-      calm: 'neutral', excited: 'smirk', annoyed: 'smirk', smile: 'smirk',
-      laugh: 'smirk', angry: 'smirk', cry: 'sad'
+      happy: 'laugh', gentle: 'tender', soft: 'tender', calm: 'neutral',
+      embarrassed: 'blush', bashful: 'shy', flustered: 'blush',
+      crying: 'cry', tears: 'cry', worried: 'sad', nervous: 'shy',
+      excited: 'laugh', tease: 'smirk', annoyed: 'angry',
+      proud: 'smirk', moved: 'tender'
     },
     ren: {
       happy: 'neutral', sad: 'neutral', surprised: 'neutral', angry: 'neutral',
-      smile: 'neutral', gentle: 'neutral', calm: 'neutral'
+      smile: 'neutral', gentle: 'neutral', calm: 'neutral', shy: 'neutral',
+      blush: 'neutral', tender: 'neutral', laugh: 'neutral', cry: 'neutral'
     }
   };
 
   /* Legacy accessor - every story file keeps working untouched. */
   VN.SPR = VN.CHAR;
 
-  /* Two of Mio's scripted expressions have no dedicated render in this build.
-     Instead of borrowing a face that reads wrong, the engine keeps the closest
-     shipped face and adds the emote glyph anime VNs use for that beat. */
-  VN.EMOTE = {
-    mio: { laugh: 'spark', angry: 'anger', annoyed: 'anger' }
-  };
+  /* Every expression is a real render now, so no stand-in glyphs are needed.
+     The stage still knows how to draw them if a future face is missing. */
+  VN.EMOTE = {};
 
   /* True when the character actually has a rendered face for this expression. */
   VN.isExact = function (id, expr) {

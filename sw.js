@@ -1,7 +1,7 @@
 /* Offline shell for The World Beyond Your Eyes.
    The shell is precached; art and audio are cached as they are played so a
    first visit stays light and a return visit works without a network. */
-const VERSION = 'twbye-v2.1.1';
+const VERSION = 'twbye-v2.2.0';
 const SHELL = [
   './', 'index.html', 'css/style.css', 'manifest.webmanifest',
   'js/config.js', 'js/audio.js', 'js/save.js', 'js/view.js', 'js/scene.js',

@@ -1,121 +1,198 @@
 {
  "canvas": [
-  1100,
-  1650
+  1200,
+  1500
  ],
+ "anchor": "waist",
+ "composition": "half-body waist-up",
  "characters": {
   "shiori": {
    "expressions": {
     "neutral": {
-     "file": "neutral.png",
      "webp": "neutral.webp",
-     "iou": 1.0,
-     "head": 329,
-     "coverage": 0.2486
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 189790
     },
     "smile": {
-     "file": "smile.png",
      "webp": "smile.webp",
-     "iou": 0.991,
-     "head": 333,
-     "coverage": 0.249
-    },
-    "laugh": {
-     "file": "laugh.png",
-     "webp": "laugh.webp",
-     "iou": 0.995,
-     "head": 332,
-     "coverage": 0.2491
-    },
-    "sad": {
-     "file": "sad.png",
-     "webp": "sad.webp",
-     "iou": 0.995,
-     "head": 333,
-     "coverage": 0.2489
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 190374
     },
     "tender": {
-     "file": "tender.png",
      "webp": "tender.webp",
-     "iou": 0.994,
-     "head": 332,
-     "coverage": 0.2491
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 189614
     },
-    "surprised": {
-     "file": "surprised.png",
-     "webp": "surprised.webp",
-     "iou": 0.995,
-     "head": 333,
-     "coverage": 0.2489
+    "laugh": {
+     "webp": "laugh.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 186324
+    },
+    "shy": {
+     "webp": "shy.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 186904
     },
     "blush": {
-     "file": "blush.png",
      "webp": "blush.webp",
-     "iou": 0.995,
-     "head": 333,
-     "coverage": 0.249
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 186120
     },
-    "angry": {
-     "file": "angry.png",
-     "webp": "angry.webp",
-     "iou": 0.996,
-     "head": 333,
-     "coverage": 0.2491
+    "sad": {
+     "webp": "sad.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 190270
     },
     "cry": {
-     "file": "cry.png",
      "webp": "cry.webp",
-     "iou": 0.993,
-     "head": 333,
-     "coverage": 0.2489
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 188728
+    },
+    "surprised": {
+     "webp": "surprised.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 190528
+    },
+    "angry": {
+     "webp": "angry.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 188554
     }
-   },
-   "poses": {}
+   }
   },
   "mio": {
    "expressions": {
     "neutral": {
-     "file": "neutral.png",
      "webp": "neutral.webp",
-     "iou": 1.0,
-     "head": 322,
-     "coverage": 0.3353
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 116436
     },
     "smirk": {
-     "file": "smirk.png",
      "webp": "smirk.webp",
-     "iou": 0.996,
-     "head": 322,
-     "coverage": 0.3356
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 116058
     },
-    "surprised": {
-     "file": "surprised.png",
-     "webp": "surprised.webp",
-     "iou": 0.995,
-     "head": 323,
-     "coverage": 0.3356
+    "smile": {
+     "webp": "smile.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 115744
+    },
+    "tender": {
+     "webp": "tender.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 116246
+    },
+    "laugh": {
+     "webp": "laugh.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 117298
+    },
+    "shy": {
+     "webp": "shy.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 115722
+    },
+    "blush": {
+     "webp": "blush.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 117716
     },
     "sad": {
-     "file": "sad.png",
      "webp": "sad.webp",
-     "iou": 0.997,
-     "head": 322,
-     "coverage": 0.3356
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 115978
+    },
+    "cry": {
+     "webp": "cry.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 115816
+    },
+    "surprised": {
+     "webp": "surprised.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 116456
+    },
+    "angry": {
+     "webp": "angry.webp",
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 117528
     }
-   },
-   "poses": {}
+   }
   },
   "ren": {
    "expressions": {
     "neutral": {
-     "file": "neutral.png",
      "webp": "neutral.webp",
-     "iou": 1.0,
-     "head": 392,
-     "coverage": 0.2309
+     "canvas": [
+      1200,
+      1500
+     ],
+     "bytes": 92990
     }
-   },
-   "poses": {}
+   }
   }
  }
 }

@@ -78,6 +78,16 @@
     return null;
   }
 
+  /* Two half-body sprites need more room than a standing figure does, so the
+     stage steps back when a second character arrives and relaxes again when the
+     stage is empty. Driven by what is really visible, not by the script. */
+  function syncLayout() {
+    if (!spriteRoot) return;
+    var n = 0;
+    for (var k in slots) if (slots[k].id) n++;
+    spriteRoot.classList.toggle('is-duo', n > 1);
+  }
+
   function freeSlot(pref) {
     if (slots[pref] && !slots[pref].id) return pref;
     for (var k in slots) if (!slots[k].id) return k;
@@ -121,6 +131,7 @@
     s.el.classList.add('is-in');
     s.el.classList.remove('is-leaving');
     setEmote(s, id, expr);
+    syncLayout();
   };
 
   S.hide = function (id) {
@@ -133,6 +144,7 @@
     s.expr = null;
     s.el.removeAttribute('data-char');
     if (s.emote) { s.emote.classList.remove('is-on'); s.emote.innerHTML = ''; }
+    syncLayout();
     window.setTimeout(function () {
       if (!s.id) { s.el.classList.remove('is-leaving'); s.img.removeAttribute('src'); }
     }, 460);
@@ -140,6 +152,7 @@
 
   S.hideAll = function () {
     for (var k in slots) if (slots[k].id) S.hide(slots[k].id);
+    syncLayout();
   };
 
   S.setExpr = function (id, expr) {
@@ -196,6 +209,7 @@
         setEmote(slots[p], v.id, v.e || 'neutral');
       }
     });
+    syncLayout();
   };
 
   /* -------------------------------- effects -------------------------------- */
