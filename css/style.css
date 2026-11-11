@@ -1,5 +1,5 @@
 /* ==========================================================================
-   The World Beyond Your Eyes - v2.0.0
+   The World Beyond Your Eyes - v2.1.1
    Art direction: rain-lit amber. Near-black ink chrome, warm paper text,
    one gold accent, hairline rules, illustrations carry all the colour.
    Layout: a real VN stage - full-bleed plate, bottom-anchored standing
@@ -615,6 +615,25 @@ html.need-rotate .stage { filter: blur(3px) brightness(.45); pointer-events: non
   margin: 0; color: var(--paper); letter-spacing: .02em;
 }
 .rotate-inner p { margin: 8px 0 20px; font-size: 12.5px; line-height: 1.7; color: var(--paper-dim); opacity: .75; }
+
+/* ========================== FORCED LANDSCAPE =========================== */
+/* A browser will not lock the screen orientation without a gesture, so the
+   whole shell is rotated the instant the page loads: the game opens in
+   landscape on a phone held upright instead of asking for a tap first. */
+html.force-landscape {
+  --stage-w: var(--app-h, 100dvh);
+  --stage-h: var(--app-w, 100dvw);
+}
+html.force-landscape body {
+  position: fixed;
+  top: 50%; left: 50%;
+  width: var(--app-h, 100dvh);
+  height: var(--app-w, 100dvw);
+  transform: translate(-50%, -50%) rotate(90deg);
+  transform-origin: 50% 50%;
+  overflow: hidden;
+}
+html.force-landscape .rotate-overlay { display: none !important; }
 
 /* ============================== ANIMATIONS ============================== */
 @keyframes drift {

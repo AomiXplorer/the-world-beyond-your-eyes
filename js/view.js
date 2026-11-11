@@ -16,6 +16,7 @@
   var isFs = false;
   var isLocked = false;
   var subs = [];
+  var forceLandscape = false;
   var rafPending = false;
 
   function fire(evt) {
@@ -56,7 +57,7 @@
   }
 
   V.requestFullscreen = function () {
-    var el = appEl || document.documentElement;
+    var el = document.documentElement; /* <html> so the body rotation survives */
     var fn = el.requestFullscreen || el.webkitRequestFullscreen ||
       el.mozRequestFullScreen || el.msRequestFullscreen;
     if (!fn) return Promise.resolve(false);
@@ -126,6 +127,14 @@
     });
   };
 
+  /* Browsers refuse the orientation lock without a gesture, but an installed
+     app or a permissive browser may still grant it. Ask once on load and never
+     let a refusal surface - the CSS rotation already shows a landscape shell. */
+  V.tryAutoGameMode = function () {
+    if (!V.isTouch() || isLocked) return Promise.resolve(false);
+    return V.lockLandscape();
+  };
+
   V.isFullscreen = function () { return !!fsElement(); };
   V.isLocked = function () { return isLocked; };
 
@@ -155,9 +164,17 @@
     body.classList.toggle('is-compact', small);
     body.classList.toggle('is-fullscreen', !!fsElement());
 
-    // A phone/tablet held upright cannot show a landscape stage without
-    // breaking it, so we ask the player to turn the device instead.
-    var needRotate = inGame && portrait && (touchy || small);
+    // The game is landscape only. On a touch device held upright the shell is
+    // rotated for the player (see .force-landscape in the stylesheet) so the
+    // first screen already looks landscape, with no tap needed. Only a narrow
+    // non-touch window still gets the old "turn the device" prompt.
+    var forceLand = touchy && portrait;
+    if (forceLand !== forceLandscape) {
+      forceLandscape = forceLand;
+      document.documentElement.classList.toggle('force-landscape', forceLand);
+      if (forceLand) fire({ type: 'portrait', needed: true });
+    }
+    var needRotate = inGame && portrait && small && !touchy;
     document.documentElement.classList.toggle('need-rotate', needRotate);
     if (needRotate) fire({ type: 'rotate', needed: true });
     return m;

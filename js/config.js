@@ -1,6 +1,6 @@
 /* ============================================================
    The World Beyond Your Eyes - configuration & asset manifest
-   v2.1.0 - anime VN art direction, character sprite system
+   v2.1.1 - anime VN art direction, character sprite system
    ============================================================ */
 window.VN = window.VN || {};
 
@@ -10,7 +10,7 @@ window.VN = window.VN || {};
   VN.ASSET = 'assets/';
   VN.TITLE = 'The World Beyond Your Eyes';
   VN.TITLE_ID = 'Dunia di Balik Matamu';
-  VN.VERSION = '2.1.0';
+  VN.VERSION = '2.1.1';
   VN.SAVE_VERSION = 3;
 
   /* ------------------------------ backgrounds ------------------------------ */

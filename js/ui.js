@@ -614,6 +614,28 @@
       }
     });
 
+    /* Opening the game should already be landscape: view.js rotates the shell
+       the moment the page loads, and the first touch anywhere asks the browser
+       for the real fullscreen + orientation lock. The player never has to press
+       Play just to get a landscape view. */
+    if (VN.View.isTouch()) {
+      var firstGesture = function () {
+        ['pointerdown', 'touchstart', 'keydown'].forEach(function (k) {
+          document.removeEventListener(k, firstGesture, true);
+        });
+        enterGameView();
+      };
+      ['pointerdown', 'touchstart', 'keydown'].forEach(function (k) {
+        document.addEventListener(k, firstGesture, true);
+      });
+
+      window.setTimeout(function () {
+        if (VN.View.isTouch() && window.innerHeight > window.innerWidth && !VN.View.inGame()) {
+          U.toast('Putar HP ke mendatar');
+        }
+      }, 1600);
+    }
+
     var rotBtn = $('rotate-fullscreen');
     if (rotBtn) rotBtn.addEventListener('click', function () {
       enterGameView();
