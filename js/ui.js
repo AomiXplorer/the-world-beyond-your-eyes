@@ -14,6 +14,28 @@
 
   function $(id) { return document.getElementById(id); }
 
+  /* The footer used to carry a hand-typed version, which went stale the moment
+     the build moved on. It reads the real one now. */
+  function stampVersion() {
+    var el = $('title-version');
+    if (el) el.textContent = 'v' + VN.VERSION;
+  }
+
+  /* Browsers only grant fullscreen from a real gesture, so the first click
+     anywhere on the page asks for it. A click is dispatched after the tap has
+     already picked its target, which is why swallowing it into fullscreen never
+     makes the tap land on the wrong menu row. */
+  function armFirstClickFullscreen() {
+    var done = false;
+    function once() {
+      if (done) return;
+      done = true;
+      document.removeEventListener('click', once, true);
+      enterGameView();
+    }
+    document.addEventListener('click', once, true);
+  }
+
   /* Entering the story is also the moment to ask for the real game view:
      fullscreen plus a landscape lock, both requested from inside the click. */
   function enterGameView() {
@@ -52,6 +74,7 @@
 
   /* ------------------------------- title ------------------------------- */
   U.showTitle = function () {
+    stampVersion();
     titleEl = $('title-screen');
     stageEl = $('stage');
     stageEl.classList.add('is-hidden');
@@ -488,6 +511,8 @@
 
   /* ------------------------------ wiring ------------------------------ */
   U.init = function () {
+    stampVersion();
+    armFirstClickFullscreen();
     bootEl = $('boot');
     titleEl = $('title-screen');
     stageEl = $('stage');
@@ -497,12 +522,11 @@
       if (!b || b.hasAttribute('disabled')) return;
       VN.Audio.sfx('ui_click', 0.8);
       var a = b.getAttribute('data-action');
+      enterGameView();
       if (a === 'new') {
-        enterGameView();
         U.showStage();
         VN.Game.newGame();
       } else if (a === 'continue') {
-        enterGameView();
         VN.Save.latestSave().then(function (best) {
           if (!best || !best.data) { U.toast('Belum ada save'); return; }
           U.showStage();

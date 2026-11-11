@@ -1,6 +1,7 @@
 /* ============================================================
    The World Beyond Your Eyes - configuration & asset manifest
-   v2.2.0 - half-body character sprites, youthful 17-year-old cast
+   v2.2.1 - fullscreen from the first tap, a title screen that fits the
+   rotated landscape shell, half-body waist-up character sprites
    ============================================================ */
 window.VN = window.VN || {};
 
@@ -10,7 +11,7 @@ window.VN = window.VN || {};
   VN.ASSET = 'assets/';
   VN.TITLE = 'The World Beyond Your Eyes';
   VN.TITLE_ID = 'Dunia di Balik Matamu';
-  VN.VERSION = '2.2.0';
+  VN.VERSION = '2.2.1';
   VN.SAVE_VERSION = 3;
 
   /* ------------------------------ backgrounds ------------------------------ */

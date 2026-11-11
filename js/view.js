@@ -146,8 +146,17 @@
     // Mobile browsers report a viewport that ignores their own chrome; dvh is
     // correct where it exists, and this variable is the fallback everywhere.
     var hh = vv ? Math.round(vv.height) : h;
-    document.documentElement.style.setProperty('--app-h', hh + 'px');
-    document.documentElement.style.setProperty('--app-w', w + 'px');
+    var vw = vv ? Math.round(vv.width) : w;
+    var vx = vv ? Math.round(vv.offsetLeft) : 0;
+    var vy = vv ? Math.round(vv.offsetTop) : 0;
+    var rootStyle = document.documentElement.style;
+    rootStyle.setProperty('--app-h', hh + 'px');
+    rootStyle.setProperty('--app-w', w + 'px');
+    // Where the visible area actually sits, so the rotated shell can be centred
+    // on it instead of on the layout viewport. A URL bar sliding in and out
+    // otherwise leaves the stage off-centre with a band on one side only.
+    rootStyle.setProperty('--app-cx', (vx + vw / 2) + 'px');
+    rootStyle.setProperty('--app-cy', (vy + hh / 2) + 'px');
     return { w: w, h: hh };
   }
 
@@ -174,6 +183,13 @@
       document.documentElement.classList.toggle('force-landscape', forceLand);
       if (forceLand) fire({ type: 'portrait', needed: true });
     }
+    // The stage is not always the physical viewport: on a touch device held
+    // upright the shell is rotated, so the stage is as tall as the screen is
+    // wide. Everything that has to compact keys off this flag, not off the
+    // media query for the physical screen.
+    var stageH = forceLand ? m.w : m.h;
+    document.documentElement.classList.toggle('is-short-stage', stageH < 520);
+
     var needRotate = inGame && portrait && small && !touchy;
     document.documentElement.classList.toggle('need-rotate', needRotate);
     if (needRotate) fire({ type: 'rotate', needed: true });

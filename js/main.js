@@ -107,7 +107,17 @@
   // Ask the browser to keep the game installed-friendly off the network.
   if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
     window.addEventListener('load', function () {
-      navigator.serviceWorker.register('sw.js').catch(function () {});
+      navigator.serviceWorker.register('sw.js').then(function () {
+        // A new build takes over on its own; show it on the title screen so a
+        // returning player never keeps reading an old version by accident. Mid
+        // game it waits for the next visit instead of interrupting.
+        var reloading = false;
+        navigator.serviceWorker.addEventListener('controllerchange', function () {
+          if (reloading || document.body.classList.contains('in-game')) return;
+          reloading = true;
+          location.reload();
+        });
+      }).catch(function () {});
     });
   }
 

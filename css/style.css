@@ -167,7 +167,9 @@ img { max-width: 100%; }
   display: flex; gap: 10px; font-size: 11px; letter-spacing: .1em;
   color: var(--paper-dim); opacity: .6; z-index: 2;
 }
-.title-footer .dot { opacity: .5; }
+.title-footer .dot { opacity: .5; flex: 0 0 auto; }
+#title-progress { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#title-version { flex: 0 0 auto; }
 
 /* ================================ STAGE ================================ */
 .stage { z-index: 30; background: var(--ink); }
@@ -645,10 +647,11 @@ html.need-rotate .stage { filter: blur(3px) brightness(.45); pointer-events: non
 html.force-landscape {
   --stage-w: var(--app-h, 100dvh);
   --stage-h: var(--app-w, 100dvw);
+  --pad-x: clamp(20px, calc(var(--app-h, 100dvh) * .034), 48px);
 }
 html.force-landscape body {
   position: fixed;
-  top: 50%; left: 50%;
+  top: var(--app-cy, 50%); left: var(--app-cx, 50%);
   width: var(--app-h, 100dvh);
   height: var(--app-w, 100dvw);
   transform: translate(-50%, -50%) rotate(90deg);
@@ -685,40 +688,66 @@ html.force-landscape .rotate-overlay { display: none !important; }
 
 /* ============================== RESPONSIVE ============================== */
 
-/* short landscape phones: tighten everything, keep the stage wide */
-@media (max-height: 480px) and (orientation: landscape) {
-  :root { --sprite-h: .92; --sprite-b: 0; }
-  .sprite-root.is-duo { --sprite-h: .78; }
-  .hud { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); }
-  .hud-btn { padding: 5px 7px; }
-  .hud-btn span { display: none; }
-  .hud-btn svg { width: 16px; height: 16px; }
-  .dialog-wrap { padding: 0 12px calc(env(safe-area-inset-bottom, 0px) + 8px); }
-  .dialog-box { padding: 14px 16px 16px; }
-  .dialog-text { font-size: clamp(13px, 1.9vh, 15.5px); line-height: 1.62; min-height: 2.6em; }
-  .name-tag { font-size: 11px; padding: 2px 10px; }
-  .choices { bottom: calc(env(safe-area-inset-bottom, 0px) + clamp(96px, 26vh, 140px)); gap: 6px; }
-  .choice-btn { padding: 8px 14px; }
-  .choice-btn .ctext { font-size: 12.5px; }
-  .cc-title { font-size: clamp(20px, 4.4vh, 30px); }
-  .ec-strategy, .ec-title { font-size: clamp(22px, 5vh, 34px); }
-  .title-inner { max-width: 54vw; }
-  .title-logo { font-size: clamp(24px, 5.6vh, 38px); }
-  .title-menu { margin-top: 10px; gap: 0; }
-  .menu-item { padding: 4px 16px 4px 2px; }
-  .mi-label { font-size: 13px; }
-  .mi-en { display: none; }
-  .title-kicker { display: none; }
-  .title-sub { display: none; }
-  .panel-body { padding: 12px 16px; }
-  .slider-row { grid-template-columns: 1fr minmax(90px, 1.2fr) 38px; padding: 4px 0; }
-  .toggle { padding: 7px 12px; font-size: 11px; }
+/* Short stage: either a landscape phone, or any touch device held upright where
+   the shell rotates itself and the stage is only as tall as the screen is wide.
+   Every size here is derived from --stage-h / --stage-w, so the rotated shell
+   and a real landscape screen get the same layout. */
+.is-short-stage { --sprite-h: .92; --sprite-b: 0; }
+.is-short-stage .sprite-root.is-duo { --sprite-h: .78; }
+.is-short-stage .hud { padding-top: calc(env(safe-area-inset-top, 0px) + 6px); }
+.is-short-stage .hud-btn { padding: 5px 7px; }
+.is-short-stage .hud-btn span { display: none; }
+.is-short-stage .hud-btn svg { width: 16px; height: 16px; }
+.is-short-stage .dialog-wrap { padding: 0 12px calc(env(safe-area-inset-bottom, 0px) + 8px); }
+.is-short-stage .dialog-box { padding: 12px 16px 14px; }
+.is-short-stage .dialog-text { font-size: clamp(13px, calc(var(--stage-h) * .038), 15.5px); line-height: 1.62; min-height: 2.6em; }
+.is-short-stage .name-tag { font-size: 11px; padding: 2px 10px; }
+.is-short-stage .choices { bottom: calc(env(safe-area-inset-bottom, 0px) + 96px); gap: 6px; }
+.is-short-stage .choice-btn { padding: 8px 14px; }
+.is-short-stage .choice-btn .ctext { font-size: 12.5px; }
+.is-short-stage .cc-title { font-size: clamp(20px, calc(var(--stage-h) * .09), 30px); }
+.is-short-stage .ec-strategy, .is-short-stage .ec-title { font-size: clamp(22px, calc(var(--stage-h) * .1), 34px); }
+.is-short-stage .panel-body { padding: 12px 16px; }
+.is-short-stage .slider-row { grid-template-columns: 1fr minmax(90px, 1.2fr) 38px; padding: 4px 0; }
+.is-short-stage .toggle { padding: 7px 12px; font-size: 11px; }
+
+/* Title on a short stage: the logo never towers, the menu never runs past the
+   footer. Seven rows in two columns keep the whole thing inside 400px of height
+   instead of a single column that clips the last item. */
+.is-short-stage .title-inner {
+  max-width: min(520px, calc(var(--stage-w) * .56));
+  left: clamp(20px, calc(var(--stage-w) * .04), 48px);
 }
+.is-short-stage .title-kicker { display: none; }
+.is-short-stage .title-sub { display: none; }
+.is-short-stage .title-logo {
+  font-size: clamp(22px, calc(var(--stage-h) * .082), 38px);
+  line-height: 1.06;
+}
+.is-short-stage .title-menu {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, max-content));
+  grid-template-rows: repeat(4, auto);
+  grid-auto-flow: column;
+  column-gap: clamp(18px, calc(var(--stage-w) * .04), 44px);
+  row-gap: 0;
+  margin-top: clamp(8px, calc(var(--stage-h) * .03), 18px);
+}
+.is-short-stage .menu-item { padding: 5px 14px 5px 2px; }
+.is-short-stage .menu-item:hover, .is-short-stage .menu-item:focus-visible { padding-left: 14px; }
+.is-short-stage .mi-label { font-size: clamp(12.5px, calc(var(--stage-h) * .034), 15.5px); }
+.is-short-stage .mi-en { display: none; }
+.is-short-stage .title-footer {
+  font-size: 10px; gap: 8px; bottom: clamp(6px, calc(var(--stage-h) * .025), 14px);
+  left: clamp(20px, calc(var(--stage-w) * .04), 48px);
+  right: clamp(20px, calc(var(--stage-w) * .04), 48px);
+}
+.is-short-stage .title-figure { height: calc(var(--stage-h) * .96); right: 3%; opacity: .95; }
 
 /* tablets / small laptops */
 @media (max-width: 900px) {
-  .title-figure { right: -8%; height: 72%; opacity: .55; }
-  .title-inner { max-width: 62vw; }
+  html:not(.force-landscape):not(.is-short-stage) .title-figure { right: 2%; height: 76%; opacity: .7; }
+  html:not(.force-landscape) .title-inner { max-width: 62vw; }
 }
 
 /* narrow screens */
@@ -726,21 +755,23 @@ html.force-landscape .rotate-overlay { display: none !important; }
   .hud-btn span { display: none; }
   .hud-title { display: none; }
   .hud-rule { display: none; }
-  .title-figure { opacity: .4; height: 58%; }
+  html:not(.force-landscape):not(.is-short-stage) .title-figure { right: 2%; opacity: .45; height: 62%; }
   .slot-grid { grid-template-columns: 1fr; }
   .credits-body dl { grid-template-columns: 1fr; gap: 4px 0; }
   .credits-body dd { margin-bottom: 8px; }
 }
 
 /* portrait phones: the stage is not playable, but menus still work */
+/* A narrow window that is genuinely held upright. A touch device in portrait
+   takes the rotated shell instead, so these never apply there. */
 @media (orientation: portrait) {
-  .title-inner { top: auto; bottom: 16%; transform: none; max-width: 100%; }
-  .title-figure { height: 46%; right: -10%; opacity: .35; }
-  .title-logo { font-size: clamp(26px, 8.4vw, 40px); }
-  .title-menu { flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
-  .menu-item { padding: 6px 12px 6px 0; }
-  .mi-en { display: none; }
-  .title-scrim { background: linear-gradient(0deg, rgba(6,5,9,.97) 30%, rgba(6,5,9,.5) 70%, rgba(6,5,9,.35)); }
+  html:not(.force-landscape) .title-inner { top: auto; bottom: 16%; transform: none; max-width: 100%; }
+  html:not(.force-landscape) .title-figure { height: 46%; right: -10%; opacity: .35; }
+  html:not(.force-landscape) .title-logo { font-size: clamp(26px, 8.4vw, 40px); }
+  html:not(.force-landscape) .title-menu { flex-direction: row; flex-wrap: wrap; gap: 4px 16px; }
+  html:not(.force-landscape) .menu-item { padding: 6px 12px 6px 0; }
+  html:not(.force-landscape) .mi-en { display: none; }
+  html:not(.force-landscape) .title-scrim { background: linear-gradient(0deg, rgba(6,5,9,.97) 30%, rgba(6,5,9,.5) 70%, rgba(6,5,9,.35)); }
 }
 
 /* ------------------------------ reduced motion ------------------------------ */
