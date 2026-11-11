@@ -155,6 +155,19 @@
     syncLayout();
   };
 
+  var lastExprCue = 0;
+
+  /* A face swap is a quiet thing: a soft rustle, detuned slightly every time, and
+     never twice inside 140ms so a burst of expression beats cannot machine-gun
+     it. */
+  function exprCue() {
+    if (!VN.Audio || !VN.Audio.sfx) return;
+    var now = (window.performance && performance.now) ? performance.now() : Date.now();
+    if (now - lastExprCue < 140) return;
+    lastExprCue = now;
+    VN.Audio.sfx('expr_shift', 0.5, 0.94 + Math.random() * 0.12);
+  }
+
   S.setExpr = function (id, expr) {
     var key = slotOf(id);
     if (!key) return;
@@ -165,6 +178,7 @@
     setEmote(s, id, expr || 'neutral');
     if (s.img.getAttribute('src') === src) return;
     s.img.src = src;
+    exprCue();
     s.img.classList.remove('is-swapping');
     void s.img.offsetWidth;
     s.img.classList.add('is-swapping');

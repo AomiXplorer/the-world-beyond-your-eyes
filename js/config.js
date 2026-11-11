@@ -1,7 +1,7 @@
 /* ============================================================
    The World Beyond Your Eyes - configuration & asset manifest
-   v2.2.1 - fullscreen from the first tap, a title screen that fits the
-   rotated landscape shell, half-body waist-up character sprites
+   v2.2.2 - a soft cloth cue under every expression change, so a face swap is
+   heard as well as seen
    ============================================================ */
 window.VN = window.VN || {};
 
@@ -11,7 +11,7 @@ window.VN = window.VN || {};
   VN.ASSET = 'assets/';
   VN.TITLE = 'The World Beyond Your Eyes';
   VN.TITLE_ID = 'Dunia di Balik Matamu';
-  VN.VERSION = '2.2.1';
+  VN.VERSION = '2.2.2';
   VN.SAVE_VERSION = 3;
 
   /* ------------------------------ backgrounds ------------------------------ */
@@ -165,7 +165,8 @@ window.VN = window.VN || {};
     page:        'audio/sfx/page.mp3',
     shutter:     'audio/sfx/shutter.mp3',
     heartbeat:   'audio/sfx/heartbeat.mp3',
-    phone:       'audio/sfx/phone.mp3'
+    phone:       'audio/sfx/phone.mp3',
+    expr_shift:  'audio/sfx/expr_shift.mp3'
   };
 
   // No voice pack ships with this build; the engine skips missing clips.

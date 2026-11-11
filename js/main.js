@@ -28,6 +28,12 @@
 
   function url(p) { return VN.ASSET + p; }
 
+  function warmAudio() {
+    ['expr_shift', 'ui_click'].forEach(function (k) {
+      if (VN.Audio && VN.Audio.warm) VN.Audio.warm(k);
+    });
+  }
+
   function collectCore() {
     var list = [];
     list.push(url(VN.BG.keyart));
@@ -63,6 +69,7 @@
       return VN.Game.init();
     }).then(function () {
       VN.Audio.init();
+      warmAudio();
       VN.UI.syncSettings();
 
       var core = collectCore();

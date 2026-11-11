@@ -16,7 +16,7 @@ Anime visual novel, 8 chapters, 4 endings. Indonesian dialogue.
   - Shiori Amane: 10 expressions
   - Mio Kanzaki: 11 expressions
   - Ren Takahashi: 1 expression (narrator, never stands on stage)
-- `assets/audio` - 9 BGM tracks + 16 SFX, synthesised from scratch, royalty free
+- `assets/audio` - 9 BGM tracks + 17 SFX, synthesised from scratch, royalty free
 
 ## Character sprites
 
@@ -29,6 +29,15 @@ anchor, which is why swapping an expression never moves or resizes the sprite.
 The stage sizes them from `--sprite-h` in `css/style.css` (82% of stage height on
 wide screens, 92% on short landscape phones, 70% when two characters share the
 stage). The waist line sits just behind the dialogue box.
+
+## Expression cue
+
+A face swap is a 200ms cross-fade, so it gets a 0.3s cloth rustle rather than a
+click: band-passed noise with a fast attack, detuned a few percent on every play
+and muted for 140ms after each one, so a burst of expression beats cannot turn it
+into a machine gun. It plays only when the face really changes, never when the
+character walks in and never while a save is being restored. Register or retune it
+in `VN.SFX` (`expr_shift`) and drop the level in `js/scene.js` (`exprCue`).
 
 ## Editing the script
 

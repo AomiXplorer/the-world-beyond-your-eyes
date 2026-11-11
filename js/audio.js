@@ -174,7 +174,21 @@
   };
 
   /* ------------------------------ SFX ------------------------------ */
-  A.sfx = function (key, vol) {
+  /* rate lets one clip stand in for several: a rustle detuned a few percent is
+     a different rustle, which keeps a sound played every few lines from
+     turning into a loop. */
+  /* Pull a clip into memory ahead of the moment it is needed. */
+  A.warm = function (key) {
+    var path = VN.SFX[key];
+    if (!path) return;
+    var pool = A.pool[key] || (A.pool[key] = []);
+    if (pool.length) return;
+    var el = new Audio(url(path));
+    el.preload = 'auto';
+    pool.push(el);
+  };
+
+  A.sfx = function (key, vol, rate) {
     if (A.muted || !A.unlocked) return;
     var path = VN.SFX[key];
     if (!path) { console.warn('[audio] unknown sfx', key); return; }
@@ -189,6 +203,7 @@
     }
     try {
       el.currentTime = 0;
+      try { el.playbackRate = rate > 0 ? rate : 1; } catch (e) {}
       el.volume = Math.max(0, Math.min(1, A.sfxCh.vol * (typeof vol === 'number' ? vol : 1)));
       var p = el.play();
       if (p && p.catch) p.catch(function () {});
