@@ -34,9 +34,12 @@
     ['cafe_rain', 'cafe_evening', 'street_spring', 'classroom'].forEach(function (k) {
       if (VN.BG[k]) list.push(url(VN.BG[k]));
     });
-    Object.keys(VN.SPR).forEach(function (id) {
-      var expr = VN.SPR[id];
-      Object.keys(expr).forEach(function (e) { list.push(url(expr[e])); });
+    Object.keys(VN.CHAR).forEach(function (id) {
+      var seen = {};
+      Object.keys(VN.CHAR[id]).forEach(function (e) {
+        var p = VN.CHAR[id][e];
+        if (!seen[p]) { seen[p] = 1; list.push(url(p)); }
+      });
     });
     return list;
   }
@@ -51,6 +54,8 @@
     if (started) return;
     started = true;
 
+    VN.View.init();
+    VN.Scene.init();
     VN.UI.init();
     VN.UI.boot(0.05, 'Membaca kenangan...');
 
@@ -100,10 +105,19 @@
   }
 
   // expose a diagnostic surface for automated playthrough tests
+  // Ask the browser to keep the game installed-friendly off the network.
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function () {});
+    });
+  }
+
   window.__vn = {
     chapters: function () { return VN.chapters.map(function (c) { return c.id + ':' + c.beats.length; }); },
     state: function () { return VN.Game.getState(); },
-    preload: preloaded
+    preload: preloaded,
+    scene: function () { return VN.Scene.state(); },
+    view: function () { return { fullscreen: VN.View.isFullscreen(), locked: VN.View.isLocked(), touch: VN.View.isTouch() }; }
   };
 
   if (document.readyState === 'loading') {

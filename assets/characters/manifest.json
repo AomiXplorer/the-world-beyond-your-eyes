@@ -1,0 +1,121 @@
+{
+ "canvas": [
+  1100,
+  1650
+ ],
+ "characters": {
+  "shiori": {
+   "expressions": {
+    "neutral": {
+     "file": "neutral.png",
+     "webp": "neutral.webp",
+     "iou": 1.0,
+     "head": 329,
+     "coverage": 0.2486
+    },
+    "smile": {
+     "file": "smile.png",
+     "webp": "smile.webp",
+     "iou": 0.991,
+     "head": 333,
+     "coverage": 0.249
+    },
+    "laugh": {
+     "file": "laugh.png",
+     "webp": "laugh.webp",
+     "iou": 0.995,
+     "head": 332,
+     "coverage": 0.2491
+    },
+    "sad": {
+     "file": "sad.png",
+     "webp": "sad.webp",
+     "iou": 0.995,
+     "head": 333,
+     "coverage": 0.2489
+    },
+    "tender": {
+     "file": "tender.png",
+     "webp": "tender.webp",
+     "iou": 0.994,
+     "head": 332,
+     "coverage": 0.2491
+    },
+    "surprised": {
+     "file": "surprised.png",
+     "webp": "surprised.webp",
+     "iou": 0.995,
+     "head": 333,
+     "coverage": 0.2489
+    },
+    "blush": {
+     "file": "blush.png",
+     "webp": "blush.webp",
+     "iou": 0.995,
+     "head": 333,
+     "coverage": 0.249
+    },
+    "angry": {
+     "file": "angry.png",
+     "webp": "angry.webp",
+     "iou": 0.996,
+     "head": 333,
+     "coverage": 0.2491
+    },
+    "cry": {
+     "file": "cry.png",
+     "webp": "cry.webp",
+     "iou": 0.993,
+     "head": 333,
+     "coverage": 0.2489
+    }
+   },
+   "poses": {}
+  },
+  "mio": {
+   "expressions": {
+    "neutral": {
+     "file": "neutral.png",
+     "webp": "neutral.webp",
+     "iou": 1.0,
+     "head": 322,
+     "coverage": 0.3353
+    },
+    "smirk": {
+     "file": "smirk.png",
+     "webp": "smirk.webp",
+     "iou": 0.996,
+     "head": 322,
+     "coverage": 0.3356
+    },
+    "surprised": {
+     "file": "surprised.png",
+     "webp": "surprised.webp",
+     "iou": 0.995,
+     "head": 323,
+     "coverage": 0.3356
+    },
+    "sad": {
+     "file": "sad.png",
+     "webp": "sad.webp",
+     "iou": 0.997,
+     "head": 322,
+     "coverage": 0.3356
+    }
+   },
+   "poses": {}
+  },
+  "ren": {
+   "expressions": {
+    "neutral": {
+     "file": "neutral.png",
+     "webp": "neutral.webp",
+     "iou": 1.0,
+     "head": 392,
+     "coverage": 0.2309
+    }
+   },
+   "poses": {}
+  }
+ }
+}

@@ -14,6 +14,19 @@
 
   function $(id) { return document.getElementById(id); }
 
+  /* Entering the story is also the moment to ask for the real game view:
+     fullscreen plus a landscape lock, both requested from inside the click. */
+  function enterGameView() {
+    return VN.View.enterGameMode().then(function (r) {
+      if (r && r.requested && !r.fullscreen && !VN.View.isFullscreen()) {
+        // Browsers that refuse fullscreen still play - the stage just fills
+        // the viewport they give us, and the rotate prompt covers portrait.
+        document.body.classList.add('no-fullscreen');
+      }
+      return r;
+    });
+  }
+
   /* ------------------------------- boot ------------------------------- */
   U.boot = function (progress, label) {
     var fill = $('boot-bar-fill');
@@ -50,6 +63,7 @@
     VN.Audio.stopBgm(1400);
     VN.Audio.ambienceOff(1000);
     document.body.classList.remove('in-game');
+    VN.View.setInGame(false);
 
     var art = $('title-art');
     art.style.backgroundImage = 'url("' + VN.ASSET + VN.BG.keyart + '")';
@@ -78,6 +92,7 @@
     titleEl.classList.add('is-hidden');
     stageEl.classList.remove('is-hidden');
     document.body.classList.add('in-game');
+    VN.View.setInGame(true);
     $('title-art').classList.remove('is-on');
   };
 
@@ -170,16 +185,40 @@
       if (s.reduceMotion) $('bg-rain').classList.remove('is-on');
     });
     $('toggle-fullscreen').addEventListener('click', function () {
-      if (!document.fullscreenElement) {
-        if (document.documentElement.requestFullscreen) {
-          document.documentElement.requestFullscreen().catch(function () {
-            U.toast('Layar penuh tidak didukung di browser ini');
-          });
-        } else { U.toast('Layar penuh tidak didukung di browser ini'); }
-      } else if (document.exitFullscreen) {
-        document.exitFullscreen();
+      if (!VN.View.supported().fullscreen) {
+        U.toast('Browser ini tidak mendukung layar penuh');
+        return;
       }
+      VN.View.toggleFullscreen().then(function (ok) {
+        if (!ok) U.toast('Layar penuh ditolak browser');
+        paintFs();
+      });
     });
+
+    function paintFs() {
+      var on = VN.View.isFullscreen();
+      $('toggle-fullscreen').setAttribute('aria-pressed', String(on));
+      var sup = VN.View.supported();
+      var hint = $('fs-hint');
+      if (!sup.fullscreen) hint.textContent = 'Browser ini tidak mendukung layar penuh.';
+      else if (VN.View.isIOS()) hint.textContent = 'Di iPhone/iPad, layar penuh hanya tersedia setelah "Tambah ke Layar Utama".';
+      else hint.textContent = on ? 'Layar penuh aktif.' : 'Layar penuh nonaktif.';
+    }
+    paintFs();
+    VN.View.on(function (e) { if (e.type === 'fullscreen') paintFs(); });
+
+    // character voice channel: only shown when a voice pack is shipped
+    var vrow = $('row-voice');
+    if (vrow && VN.HAS_VOICE) {
+      vrow.hidden = false;
+      $('vol-voice').value = Math.round(s.voice * 100);
+      $('vol-voice-out').textContent = Math.round(s.voice * 100);
+      $('vol-voice').addEventListener('input', function () {
+        s.voice = this.value / 100;
+        commit({ voice: s.voice });
+        VN.Audio.setVolume('voice', s.voice);
+      });
+    }
     $('clear-seen').addEventListener('click', function () {
       VN.Save.setMeta('seen', {}).then(function () {
         VN.Game.setSeenMap({});
@@ -384,6 +423,7 @@
       b.querySelector('.ch-id').textContent = m.id_title;
       b.addEventListener('click', function () {
         closePanels();
+        enterGameView();
         U.showStage();
         $('ending-card').classList.add('is-hidden');
         $('ending-card').classList.remove('is-on');
@@ -415,9 +455,9 @@
   /* ------------------------------ credits ------------------------------ */
   function renderCredits() {
     var body = $('credits-body');
-    var html = VN.CREDITS.map(function (r) {
+    var html = '<dl>' + VN.CREDITS.map(function (r) {
       return '<div class="cred-row"><dt>' + r[0] + '</dt><dd>' + r[1] + '</dd></div>';
-    }).join('');
+    }).join('') + '</dl>';
     html += '<p class="cred-note">Semua ilustrasi dibuat dengan AI image generation lalu diarahkan secara manual ' +
       '(komposisi, cropping, pemotongan sprite). Seluruh musik dan efek suara disintesis khusus untuk game ini, ' +
       'tidak memakai sampel pihak ketiga. Terinspirasi dari visual novel Jepang dan karya yang berani diam ' +
@@ -442,8 +482,8 @@
   U.syncToggles = function () {
     var a = document.querySelector('.hud-btn[data-hud="auto"]');
     var s = document.querySelector('.hud-btn[data-hud="skip"]');
-    if (a) a.classList.toggle('is-active', VN.Game.isAuto());
-    if (s) s.classList.toggle('is-active', VN.Game.isSkip());
+    if (a) a.setAttribute('aria-pressed', String(!!VN.Game.isAuto()));
+    if (s) s.setAttribute('aria-pressed', String(!!VN.Game.isSkip()));
   };
 
   /* ------------------------------ wiring ------------------------------ */
@@ -458,9 +498,11 @@
       VN.Audio.sfx('ui_click', 0.8);
       var a = b.getAttribute('data-action');
       if (a === 'new') {
+        enterGameView();
         U.showStage();
         VN.Game.newGame();
       } else if (a === 'continue') {
+        enterGameView();
         VN.Save.latestSave().then(function (best) {
           if (!best || !best.data) { U.toast('Belum ada save'); return; }
           U.showStage();
@@ -508,6 +550,7 @@
         else if (a === 'save') { U.openSaves('save'); }
         else if (a === 'load') { U.openSaves('load'); }
         else if (a === 'settings') { openPanel('ov-settings'); }
+        else if (a === 'chapters') { loadMeta().then(function () { renderChapters(); openPanel('ov-chapters'); }); }
         else if (a === 'menu') {
           if (window.confirm('Kembali ke menu utama? Progres otomatis tersimpan.')) {
             VN.Game.autosave();
@@ -568,6 +611,24 @@
         $('hud').classList.toggle('is-awake');
       } else if (/^[1-9]$/.test(ev.key) && document.querySelector('.choices.is-on')) {
         VN.Game.pickIndex(parseInt(ev.key, 10) - 1);
+      }
+    });
+
+    var rotBtn = $('rotate-fullscreen');
+    if (rotBtn) rotBtn.addEventListener('click', function () {
+      enterGameView();
+      if (!VN.View.isFullscreen()) U.toast('Putar perangkat secara manual ke posisi mendatar');
+    });
+
+    // The story waits while the device is upright or the tab is hidden.
+    VN.View.on(function (e) {
+      if (e.type === 'rotate' && e.needed) {
+        if (VN.Game.isAuto()) { VN.Game.setAuto(false); U.toast('Auto berhenti: putar perangkat'); }
+        if (VN.Game.isSkip()) VN.Game.setSkip(false);
+      }
+      if (e.type === 'visibility' && e.hidden) {
+        if (VN.Game.isAuto()) VN.Game.setAuto(false);
+        if (VN.Game.isSkip()) VN.Game.setSkip(false);
       }
     });
 

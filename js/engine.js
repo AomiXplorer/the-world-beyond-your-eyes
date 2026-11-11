@@ -87,128 +87,40 @@
   }
 
   /* ------------------------------ scenes ------------------------------ */
-  var bgFront = 'a';
+  // Visual work lives in VN.Scene (js/scene.js). The engine decides *what*
+  // happens; the renderer decides how it looks.
+  function syncSpriteState() { if (state) state.sprites = VN.Scene.state(); }
 
-  function applyBg(key, opts) {
-    opts = opts || {};
-    if (!key || state.bg === key) {
-      if (key && VN.BG[key]) paintBg(key);
-      return;
-    }
+  function applyBg(key) {
+    if (!key) return;
     state.bg = key;
-    paintBg(key);
+    VN.Scene.paint(key);
   }
 
-  function paintBg(key) {
-    var path = VN.BG[key];
-    if (!path) { console.warn('[engine] missing bg', key); return; }
-    var front = bgFront === 'a' ? el.bgB : el.bgA;
-    var back = bgFront === 'a' ? el.bgA : el.bgB;
-    front.style.backgroundImage = 'url("' + VN.ASSET + path + '")';
-    front.classList.add('is-on');
-    back.classList.remove('is-on');
-    bgFront = bgFront === 'a' ? 'b' : 'a';
-    refreshRain();
-  }
+  function refreshRain() { VN.Scene.syncRain(); }
 
-  function rainAllowed() {
-    return !!state.rain &&
-      !!(VN.RAIN_BG && VN.RAIN_BG[state.bg]) &&
-      !document.body.classList.contains('reduce-motion');
-  }
+  function setRain(on) { state.rain = !!on; VN.Scene.setRain(!!on); }
 
-  function refreshRain() {
-    if (el.rain) el.rain.classList.toggle('is-on', rainAllowed());
-  }
+  function slotFor(id) { return VN.Scene.has(id) ? id : null; }
 
-  function setRain(on) {
-    state.rain = !!on;
-    refreshRain();
-  }
-
-  function slotFor(id) {
-    var s = state.sprites;
-    for (var k in s) if (s[k] && s[k].id === id) return k;
-    return null;
+  /* A character only belongs on stage when the art direction says so.
+     Ren is the first-person narrator: he speaks, he is never drawn. */
+  function stageable(id) {
+    if (!id || !VN.CHAR[id]) return false;
+    var meta = VN.CHARACTERS && VN.CHARACTERS[id];
+    return !(meta && meta.sprite === false);
   }
 
   function showSprite(id, expression, pos) {
-    if (!VN.SPR[id]) { console.warn('[engine] unknown sprite', id); return; }
-    pos = pos || 'center';
-    var existing = slotFor(id);
-    if (existing) {
-      state.sprites[existing] = { id: id, e: expression || 'neutral' };
-      renderSprites();
-      return;
-    }
-    // free slot? clear whatever is there
-    state.sprites[pos] = { id: id, e: expression || 'neutral' };
-    renderSprites();
+    if (!VN.CHAR[id]) { console.warn('[engine] unknown character', id); return; }
+    VN.Scene.show(id, expression, pos);
+    syncSpriteState();
   }
 
-  function hideSprite(id) {
-    var slot = slotFor(id);
-    if (slot) { state.sprites[slot] = null; renderSprites(); }
-  }
-
-  function hideAll() {
-    state.sprites = { left: null, center: null, right: null };
-    renderSprites();
-  }
-
-  function setExpr(id, expression) {
-    var slot = slotFor(id);
-    if (!slot) return;
-    state.sprites[slot].e = expression;
-    renderSprites();
-  }
-
-  function renderSprites(speakerId) {
-    el.sprites.forEach(function (slotEl) {
-      var pos = slotEl.getAttribute('data-pos');
-      var data = state.sprites[pos];
-      if (!data) {
-        if (slotEl.classList.contains('is-in')) {
-          slotEl.classList.remove('is-in');
-          window.setTimeout(function () {
-            if (!state.sprites[pos]) { var old = slotEl.querySelector('img'); if (old) old.remove(); }
-          }, 640);
-        }
-        return;
-      }
-      var path = VN.SPR[data.id] && VN.SPR[data.id][data.e];
-      if (!path) {
-        path = VN.SPR[data.id] && VN.SPR[data.id].neutral;
-        if (!path) return;
-      }
-      var img = slotEl.querySelector('img');
-      var src = VN.ASSET + path;
-      if (!img) {
-        img = document.createElement('img');
-        img.decoding = 'async';
-        img.alt = '';
-        img.src = src;
-        slotEl.appendChild(img);
-        slotEl.classList.add('is-in');
-      } else if (img.getAttribute('src') !== src) {
-        img.classList.add('is-swapping');
-        var next = new Image();
-        var capturedPath = src;
-        next.onload = function () {
-          if (img.getAttribute('src') === capturedPath || !img.getAttribute('src')) {}
-          img.src = capturedPath;
-          window.requestAnimationFrame(function () { img.classList.remove('is-swapping'); });
-        };
-        next.onerror = function () { img.classList.remove('is-swapping'); };
-        next.src = src;
-        // fall back quickly if the image is already cached
-        if (next.complete) { img.src = src; img.classList.remove('is-swapping'); }
-      }
-      slotEl.classList.add('is-in');
-      slotEl.classList.toggle('is-dim', !!(speakerId && data.id !== speakerId));
-      slotEl.classList.toggle('is-talk', !!(speakerId && data.id === speakerId));
-    });
-  }
+  function hideSprite(id) { VN.Scene.hide(id); syncSpriteState(); }
+  function hideAll() { VN.Scene.hideAll(); syncSpriteState(); }
+  function setExpr(id, expression) { VN.Scene.setExpr(id, expression); syncSpriteState(); }
+  function renderSprites(speakerId) { VN.Scene.stage(speakerId); syncSpriteState(); }
 
   /* ---------------------------- typewriter ---------------------------- */
   function speedMs() {
@@ -386,7 +298,10 @@
         else { VN.Audio.ambienceOn(beat.amb); state.amb = beat.amb; }
         visual = true;
       }
-      if (beat.show) { showSprite(beat.show, beat.e, beat.pos); visual = true; }
+      if (beat.show) {
+        if (stageable(beat.show)) showSprite(beat.show, beat.e, beat.pos);
+        visual = true;
+      }
       if (beat.hide === 'all') { hideAll(); visual = true; }
       else if (beat.hide) { hideSprite(beat.hide); visual = true; }
       if (beat.sfx) { VN.Audio.sfx(beat.sfx); visual = true; }
@@ -421,29 +336,18 @@
   function veilTransition(bgKey, rain) {
     state.pc++;
     busy = true;
-    el.veil.classList.add('is-on');
+    VN.Scene.veil(true);
     window.setTimeout(function () {
       applyBg(bgKey);
       if (rain !== undefined) setRain(rain);
-      el.veil.classList.remove('is-on');
+      VN.Scene.veil(false);
       window.setTimeout(function () { if (!ended) run(); }, 480);
     }, 620);
   }
 
-  function doFlash() {
-    el.flash.classList.add('is-on');
-    window.setTimeout(function () { el.flash.classList.remove('is-on'); }, 90);
-  }
+  function doFlash() { VN.Scene.flash(); }
 
-  function doShake() {
-    var st = document.getElementById('stage');
-    if (!st || document.body.classList.contains('reduce-motion')) return;
-    st.animate(
-      [{ transform: 'translateX(0)' }, { transform: 'translateX(-6px)' }, { transform: 'translateX(5px)' },
-       { transform: 'translateX(-3px)' }, { transform: 'translateX(0)' }],
-      { duration: 380, easing: 'ease-in-out' }
-    );
-  }
+  function doShake() { VN.Scene.shake(); }
 
   var cardTimer = null, cardOutTimer = null;
 
@@ -483,16 +387,16 @@
     var text = beat.t || '';
     if (beat.e && who) {
       var sp = SPEAKERS[who];
-      if (sp && sp.id && slotFor(sp.id)) setExpr(sp.id, beat.e);
-      else if (sp && sp.id && !slotFor(sp.id) && beat.autoShow !== false) showSprite(sp.id, beat.e, beat.pos || 'center');
+      if (sp && sp.id && stageable(sp.id) && slotFor(sp.id)) setExpr(sp.id, beat.e);
+      else if (sp && sp.id && stageable(sp.id) && !slotFor(sp.id) && beat.autoShow !== false) showSprite(sp.id, beat.e, beat.pos || 'center');
     }
 
     var speakerId = null;
     if (who) {
       var info = SPEAKERS[who];
       var sid = info && info.id ? info.id : (VN.SPR[who.toLowerCase()] ? who.toLowerCase() : null);
-      speakerId = sid;
-      if (sid && !slotFor(sid) && VN.SPR[sid] && beat.autoShow !== false) {
+      speakerId = stageable(sid) ? sid : null;   /* narrator never dims the cast */
+      if (speakerId && !slotFor(sid) && VN.SPR[sid] && beat.autoShow !== false) {
         showSprite(sid, beat.e || 'neutral', beat.pos || 'center');
       }
     }
@@ -683,6 +587,8 @@
     el.choices.innerHTML = '';
     el.dialogBox.classList.remove('is-hidden');
 
+    if (VN.Scene.preloadChapter) VN.Scene.preloadChapter(ch);
+
     var meta = VN.CHAPTER_META.filter(function (m) { return m.id === id; })[0];
     el.hudChapter.textContent = meta ? ('Bab ' + String(meta.no).padStart(2, '0')) : (ch.kind === 'ending' ? 'Ending' : '');
     el.hudTitle.textContent = ch.en || ch.title || '';
@@ -755,9 +661,10 @@
 
     // rebuild the whole visual state, then re-render the current line
     state.bg = null;
-    hideAll();
-    renderSprites();
-    if (data.bg) { applyBg(data.bg); }
+    VN.Scene.resetBackground();
+    VN.Scene.restore(data.sprites);
+    syncSpriteState();
+    if (data.bg) applyBg(data.bg);
     setRain(!!data.rain);
     if (data.bgm) VN.Audio.playBgm(data.bgm, 500);
     if (data.amb) VN.Audio.ambienceOn(data.amb); else VN.Audio.ambienceOff();
